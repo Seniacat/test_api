@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Comment, Post
+from api.models import Comment, Post
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -28,7 +28,7 @@ class CommentAdmin(admin.ModelAdmin):
         'post'
     )
     list_editable = ('post',)
-    search_fields = ('text', 'author','parent_id')
+    search_fields = ('text', 'author', 'parent_id')
     empty_value_display = '-empty-'
 
 

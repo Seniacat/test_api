@@ -1,8 +1,7 @@
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from api.models import Comment, Post
 
@@ -10,6 +9,7 @@ User = get_user_model()
 
 
 class AddPostSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления статьи в блог"""
 
     class Meta:
         fields = ('name', 'text')
@@ -17,10 +17,12 @@ class AddPostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         serializer = PostSerializer(instance)
-        return serializer.data    
- 
+        return serializer.data
+
 
 class PostSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения статьи блога"""
+
     author = UserSerializer(read_only=True)
 
     class Meta:
@@ -29,7 +31,8 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class AddCommentSerializer(serializers.ModelSerializer):
-    
+    """Сериализатор для добавления комментария"""
+
     class Meta:
         fields = ('text',)
         model = Comment
@@ -53,6 +56,7 @@ class AddCommentSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения комментария"""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )

@@ -25,9 +25,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
-    # ...
     "127.0.0.1",
-    # ...
 ]
 
 
@@ -147,4 +145,4 @@ REST_FRAMEWORK = {
 
 # Project constants
 
-MAX_NESTED_LEVEL = 3 
+MAX_NESTED_LEVEL = 3
