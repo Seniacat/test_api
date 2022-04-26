@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
@@ -7,18 +8,6 @@ from api.models import Comment, Post
 
 User = get_user_model()
 
-
-"""class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'password',
-            'first_name',
-            'last_name',
-            'email'
-        )"""
 
 class AddPostSerializer(serializers.ModelSerializer):
 
@@ -49,12 +38,24 @@ class AddCommentSerializer(serializers.ModelSerializer):
         serializer = CommentSerializer(instance)
         return serializer.data
 
+    def create(self, validated_data):
+        parent_id = self.context.get('view').kwargs.get('comment_id')
+        comment = Comment.objects.create(**validated_data)
+        if parent_id:
+            parent = get_object_or_404(
+                Comment,
+                pk=parent_id
+            )
+            comment.level = parent.level + 1
+            comment.parent = parent
+            comment.save()
+        return comment
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
-    post = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         fields = (
@@ -63,7 +64,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'text',
             'level',
             'created',
-            'parent_id',
+            'parent',
             'post'
         )
         model = Comment

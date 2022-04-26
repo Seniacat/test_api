@@ -41,10 +41,13 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    parent_id = models.PositiveIntegerField(
-        null=True,
+    parent = models.ForeignKey(
+        'self',
+        verbose_name='Родительский комментарий',
         blank=True,
-        verbose_name='Родительский комментарий'
+        null=True,
+        related_name='comment_children',
+        on_delete=models.CASCADE
     )
     level = models.PositiveSmallIntegerField(
         default=0,
