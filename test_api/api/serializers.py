@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
+from requests import request
 from rest_framework import serializers
 
 from api.models import Comment, Post
@@ -30,31 +31,6 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
 
 
-class AddCommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления комментария"""
-
-    class Meta:
-        fields = ('text',)
-        model = Comment
-
-    def to_representation(self, instance):
-        serializer = CommentSerializer(instance)
-        return serializer.data
-
-    def create(self, validated_data):
-        parent_id = self.context.get('view').kwargs.get('comment_id')
-        comment = Comment.objects.create(**validated_data)
-        if parent_id:
-            parent = get_object_or_404(
-                Comment,
-                pk=parent_id
-            )
-            comment.level = parent.level + 1
-            comment.parent = parent
-            comment.save()
-        return comment
-
-
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор для отображения комментария"""
     author = serializers.SlugRelatedField(
@@ -72,3 +48,43 @@ class CommentSerializer(serializers.ModelSerializer):
             'post'
         )
         model = Comment
+
+
+class PostCommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления комментария к постам"""
+
+    class Meta:
+        fields = ('text',)
+        model = Comment
+
+    def to_representation(self, instance):
+        serializer = CommentSerializer(instance)
+        return serializer.data
+
+
+class AddCommentSerializer(PostCommentSerializer):
+    """Сериализатор для добавления комментария
+        к комментарию верхнего уровня"""
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        parent_id = self.context.get('view').kwargs.get('comment_id')
+        post_id = self.context.get('view').kwargs.get('post_id')
+        post = get_object_or_404(Post, pk=post_id)
+        parent = get_object_or_404(
+            Comment.objects.select_related('main_parent'),
+            pk=parent_id
+        )
+        comment = Comment.objects.create(
+            **validated_data,
+            post=post,
+            parent=parent,
+            author = request.user
+        )
+        comment.level = parent.level + 1
+        if parent.level == 3:
+            comment.main_parent = parent
+        elif parent.level > 3:
+            comment.main_parent = parent.main_parent
+        comment.save()
+        return comment

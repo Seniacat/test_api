@@ -21,14 +21,15 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'text',
-        'parent_id',
+        'parent',
+        'main_parent',
         'level',
         'created',
         'author',
         'post'
     )
     list_editable = ('post',)
-    search_fields = ('text', 'author', 'parent_id')
+    search_fields = ('text', 'author', 'parent')
     empty_value_display = '-empty-'
 
 
