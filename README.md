@@ -34,8 +34,6 @@
 git clone https://github.com/Seniacat/test_api
 cd test_api/
 ```
-Должен быть свободен порт 8000. PostgreSQL поднимается на 5432 порту, он тоже должен быть свободен.
-
 - Cоздать и открыть файл .env с переменными окружения:
 ```
 cd infra/
