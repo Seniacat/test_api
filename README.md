@@ -28,16 +28,17 @@
 Логин и пароль superuser - admin / qwerty234.
 
 ## Запуск проекта через Docker
-Клонируйте репозиторий и перейдите в него в командной строке.
-Создайте и активируйте виртуальное окружение:
+- Клонировать репозиторий и перейти в него в командной строке.
+Создать и активировать виртуальное окружение:
 ```
 git clone https://github.com/Seniacat/test_api
-cd test_api
+cd test_api/
 ```
 Должен быть свободен порт 8000. PostgreSQL поднимается на 5432 порту, он тоже должен быть свободен.
-Cоздать и открыть файл .env с переменными окружения:
+
+- Cоздать и открыть файл .env с переменными окружения:
 ```
-cd infra
+cd infra/
 touch .env
 ```
 Заполнить .env файл с переменными окружения по примеру (SECRET_KEY см. в файле settings.py). 
@@ -57,7 +58,7 @@ echo DB_PORT=5432  >> .env
 
 echo SECRET_KEY=************ >> .env
 ```
-Установить и запустить приложения в контейнерах:
+- Установить и запустить приложения в контейнерах:
 ```
 docker-compose up -d
 ```
@@ -74,3 +75,52 @@ docker-compose exec backend python manage.py loaddata data.json
 
 ## Документация к проекту 
 Документация доступна [здесь](http://127.0.0.1/swagger/) после установки приложения.
+
+
+## Запуск проекта в dev-режиме
+
+- Клонировать репозиторий и перейти в него в командной строке:
+```
+git clone https://github.com/Seniacat/test_api.git
+cd test_api/
+```
+- Cоздать и активировать виртуальное окружение:
+```
+python3 -m venv env
+source env/bin/activate (Mac OS, Linux) или source venv/Scripts/activate (Win10)
+```
+- Установить зависимости из файла requirements.txt:
+```
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+- Cоздать в директории infra/ файл .env с переменными окружения:
+```
+cd infra/
+touch .env
+```
+Заполнить .env файл с переменными окружения по примеру (SECRET_KEY см. в файле settings.py). 
+Необходимые для работы проекта переменные окружения можно найти в файле .env.example в текущей директории:
+```
+echo DB_ENGINE=django.db.backends.postgresql >> .env
+
+echo DB_NAME=postgres >> .env
+
+echo POSTGRES_PASSWORD=postgres >> .env
+
+echo POSTGRES_USER=postgres  >> .env
+
+echo DB_HOST=db  >> .env
+
+echo DB_PORT=5432  >> .env
+
+echo SECRET_KEY=************ >> .env
+```
+- Выполнить миграции:
+```
+python3 manage.py migrate
+```
+Запустить проект:
+```
+python3 manage.py runserver
+```
