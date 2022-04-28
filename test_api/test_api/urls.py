@@ -8,7 +8,6 @@ from rest_framework import permissions
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('__debug__/', include('debug_toolbar.urls')),
 ]
 
 schema_view = get_schema_view(

@@ -10,7 +10,7 @@ User = get_user_model()
 
 
 class AddPostSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления статьи в блог"""
+    """Сериализатор для добавления статей в блог"""
 
     class Meta:
         fields = ('name', 'text')
@@ -32,7 +32,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для отображения комментария"""
+    """Сериализатор для отображения комментариев"""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -51,7 +51,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostCommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления комментария к постам"""
+    """Сериализатор для добавления комментариев к постам"""
 
     class Meta:
         fields = ('text',)
@@ -63,18 +63,15 @@ class PostCommentSerializer(serializers.ModelSerializer):
 
 
 class AddCommentSerializer(PostCommentSerializer):
-    """Сериализатор для добавления комментария
-        к комментарию верхнего уровня"""
+    """Сериализатор для добавления комментариев
+        к комментариям верхнего уровня"""
 
     def create(self, validated_data):
         request = self.context.get('request')
         parent_id = self.context.get('view').kwargs.get('comment_id')
         post_id = self.context.get('view').kwargs.get('post_id')
         post = get_object_or_404(Post, pk=post_id)
-        parent = get_object_or_404(
-            Comment.objects.select_related('main_parent'),
-            pk=parent_id
-        )
+        parent = get_object_or_404(Comment, pk=parent_id)
         comment = Comment.objects.create(
             **validated_data,
             post=post,

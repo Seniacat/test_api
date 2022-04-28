@@ -22,7 +22,10 @@
 
 
 ## Описание проекта
-
+Проект разворачивается в 3-х контейнерах: backend-приложение, postgresql-база данных и nginx-сервер.
+Реализована авторизация через auth токены, настроена админка.
+Приготовлены фикстуры для заполнения БД тестовыми данными 
+Логин и пароль superuser - admin / qwerty234.
 
 ## Запуск проекта через Docker
 Клонируйте репозиторий и перейдите в него в командной строке.
@@ -54,7 +57,7 @@ echo DB_PORT=5432  >> .env
 
 echo SECRET_KEY=************ >> .env
 ```
-Установить и запустить приложения в контейнерах (образ для контейнера web загружается из DockerHub):
+Установить и запустить приложения в контейнерах:
 ```
 docker-compose up -d
 ```
@@ -64,10 +67,10 @@ docker-compose exec backend python manage.py migrate
 
 docker-compose exec backend python manage.py collectstatic --no-input 
 ```
-Загрузить в БД статьи и комментарии:
+Загрузить в БД тестовые данные:
 ```
-docker-compose exec web python manage.py loaddata data.json
+docker-compose exec backend python manage.py loaddata data.json
 ```
 
 ## Документация к проекту 
-Документация доступна [здесь](http://127.0.0.1:8000/swagger/) после установки приложения.
+Документация доступна [здесь](http://127.0.0.1/swagger/) после установки приложения.

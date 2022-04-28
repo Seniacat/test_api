@@ -21,8 +21,8 @@ User = get_user_model()
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    """Cтатьи блога
-    Получение списка статей и добавление новой статьи
+    """Cтатьи блога.
+    Получение списка статей и добавление новой статьи.
     """
 
     queryset = Post.objects.select_related('author').all()
@@ -35,21 +35,18 @@ class PostViewSet(viewsets.ModelViewSet):
 
 class PostCommentViewSet(ListCreateDestroyViewSet):
     """Комментарии к статье.
-    Формирует queryset из всех комментариев к статье
-    до 3го уровня вложенности, а также добавляет комментарии к статье    
+    Получение списка всех комментариев к статье
+    до 3го уровня вложенности, а также добавления
+    комментариев к статье.    
     """
     serializer_class = PostCommentSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         post_id = int(self.kwargs.get('post_id'))
-        post = get_object_or_404(
-            Post.objects.prefetch_related('comments'),
-            pk=post_id
-        )
         queryset = Comment.objects.select_related(
             'author', 'post', 'post__author').filter(
-            post=post,
+            post__id=post_id,
             level__lte=settings.MAX_NESTED_LEVEL
         )
         return queryset
@@ -64,18 +61,19 @@ class PostCommentViewSet(ListCreateDestroyViewSet):
 
 
 class AddCommentView(generics.CreateAPIView):
-    """Добавление комментариев к комментариям верхнего уровня"""
+    """Добавление комментариев к комментариям верхнего уровня."""
     serializer_class = AddCommentSerializer
     permission_classes = (IsAuthenticated,)
 
     
 class NestedCommentsView(generics.ListAPIView):
-    """Получение вложенных комментариев для комментариям 3го уровня"""
+    """Получение вложенных комментариев к комментариям 3го уровня"""
     serializer_class = CommentSerializer
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
         comment_id = self.kwargs.get('comment_id')
-        comment = get_object_or_404(Comment, pk=comment_id)
-        comments = Comment.objects.select_related('author').filter(main_parent=comment)
+        comments = Comment.objects.select_related(
+            'author', 'post', 'post__author', 'main_parent'
+        ).filter(main_parent_id=comment_id)
         return comments
