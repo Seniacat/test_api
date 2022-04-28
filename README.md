@@ -60,7 +60,7 @@ echo SECRET_KEY=************ >> .env
 ```
 - Установить и запустить приложения в контейнерах:
 ```
-docker-compose up -d
+docker-compose up --build
 ```
 Запустить миграции, собрать статику:
 ```
@@ -124,3 +124,5 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+
+Документацию можно найти по [адресу](http://127.0.0.1:8000/swagger/)
