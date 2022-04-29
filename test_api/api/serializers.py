@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
-from requests import request
 from rest_framework import serializers
 
 from api.models import Comment, Post
@@ -76,7 +75,7 @@ class AddCommentSerializer(PostCommentSerializer):
             **validated_data,
             post=post,
             parent=parent,
-            author = request.user
+            author=request.user
         )
         comment.level = parent.level + 1
         if parent.level == 3:

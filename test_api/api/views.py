@@ -6,7 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from api.models import Comment, Post
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers import AddCommentSerializer, CommentSerializer, PostSerializer, PostCommentSerializer
+from api.serializers import (AddCommentSerializer, CommentSerializer,
+                             PostCommentSerializer, PostSerializer)
 
 
 class ListCreateDestroyViewSet(mixins.CreateModelMixin,
@@ -37,17 +38,18 @@ class PostCommentViewSet(ListCreateDestroyViewSet):
     """Комментарии к статье.
     Получение списка всех комментариев к статье
     до 3го уровня вложенности, а также добавления
-    комментариев к статье.    
+    комментариев к статье.
     """
     serializer_class = PostCommentSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         post_id = int(self.kwargs.get('post_id'))
-        queryset = Comment.objects.select_related(
-            'author', 'post', 'post__author').filter(
+        queryset = Comment.objects.filter(
             post__id=post_id,
             level__lte=settings.MAX_NESTED_LEVEL
+        ).select_related(
+            'author', 'post', 'post__author'
         )
         return queryset
 
@@ -65,7 +67,7 @@ class AddCommentView(generics.CreateAPIView):
     serializer_class = AddCommentSerializer
     permission_classes = (IsAuthenticated,)
 
-    
+
 class NestedCommentsView(generics.ListAPIView):
     """Получение вложенных комментариев к комментариям 3го уровня"""
     serializer_class = CommentSerializer
@@ -73,7 +75,8 @@ class NestedCommentsView(generics.ListAPIView):
 
     def get_queryset(self):
         comment_id = self.kwargs.get('comment_id')
-        comments = Comment.objects.select_related(
+        comments = Comment.objects.filter(
+            main_parent_id=comment_id).select_related(
             'author', 'post', 'post__author', 'main_parent'
-        ).filter(main_parent_id=comment_id)
+        )
         return comments
